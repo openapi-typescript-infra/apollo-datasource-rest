@@ -41,7 +41,7 @@
     "typescript": "^5.1.6"
   },
   "scripts": {
-    "test": "make generate && tsc -p tsconfig.json --noEmit && jest",
+    "test": "make && tsc -p tsconfig.json --noEmit && jest",
     "lint": "eslint .",
     "build": "tsc -p tsconfig.build.json",
     "watch": "tsc -p tsconfig.json -w --preserveWatchOutput",
