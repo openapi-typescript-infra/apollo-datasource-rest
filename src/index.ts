@@ -71,8 +71,17 @@ function buildFinalPath(
   };
 }
 
-export class TypedRESTDataSource<Paths extends Record<string, PathItemObject>, Context> extends RESTDataSource<Context> {
-  openapi: {
+type KeyedQuery = { [key: string]: object | object[] | undefined };
+type ApolloBodyParams = [string, Body?, ApolloRequestInit?];
+type ApolloQueryParams = [string, KeyedQuery?, ApolloRequestInit?];
+
+export class TypedRESTDataSource<
+  // TODO I'm not sure why we can't use the paths generic type here, but I can't get it to work.
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  Paths extends {},
+  Context,
+> extends RESTDataSource<Context> {
+  protected openapi: {
     /** Call a GET endpoint */
     get<P extends PathsWith<Paths, 'get'>>(
       url: P,
@@ -106,63 +115,77 @@ export class TypedRESTDataSource<Paths extends Record<string, PathItemObject>, C
   };
 
   private setupParams<M extends HttpMethod, P extends keyof Paths>(
+    hasBody: true,
+    url: P,
+    init: RequestOptions<FilterKeys<Paths[P], M>>,
+    options?: ApolloRequestInit,
+  ): ApolloBodyParams;
+
+  private setupParams<M extends HttpMethod, P extends keyof Paths>(
+    hasBody: false,
+    url: P,
+    init: RequestOptions<FilterKeys<Paths[P], M>>,
+    options?: ApolloRequestInit,
+  ): ApolloQueryParams;
+
+  private setupParams<M extends HttpMethod, P extends keyof Paths>(
+    hasBody: boolean,
     url: P,
     init: RequestOptions<FilterKeys<Paths[P], M>>,
     options?: ApolloRequestInit,
   ) {
     const baseParams = init as BaseParams;
-    const apolloOptions: ApolloRequestInit = options ? { ...options } : undefined;
+    let apolloOptions: ApolloRequestInit = options ? { ...options } : undefined;
     const { path } = buildFinalPath(url as string, baseParams?.params);
-    const query = baseParams?.params?.query as { [key: string]: object | object[] | undefined } | undefined;
-    const body = init?.body as Body;
-    return { path, apolloOptions, query, body };
+    const query = baseParams?.params?.query as KeyedQuery | undefined;
+    if (hasBody) {
+      if (query) {
+        // Looks like apollo-datasource-rest doesn't support query params with some methods.
+        // So we will pipe them through, knowing where it looks for them. We could
+        // instead append them to the URL, but then that's redoing query serialization
+        apolloOptions = apolloOptions || {};
+        (apolloOptions as { params: typeof query }).params = query;
+      }
+      const body = init?.body as Body;
+      if (apolloOptions) {
+        return [path, body, apolloOptions] as ApolloBodyParams;
+      }
+      if (body) {
+        return [path, body] as ApolloBodyParams;
+      }
+      return [path] as ApolloBodyParams;
+    }
+    if (apolloOptions) {
+      return [path, query, apolloOptions] as ApolloQueryParams;
+    }
+    if (query) {
+      return [path, query] as ApolloQueryParams;
+    }
+    return [path] as ApolloQueryParams;
   }
 
-  constructor(httpFetch: ConstructorParameters<typeof RESTDataSource>[0]) {
+  constructor(httpFetch?: ConstructorParameters<typeof RESTDataSource>[0]) {
     super(httpFetch);
     this.openapi = {
       get: async (url, init, options) => {
-        const { path, apolloOptions, query } = this.setupParams(url, init, options);
-        // This is just to make existing spyOn work better.
-        return apolloOptions ? this.get(path, query, apolloOptions) : this.get(path, query);
+        const params = this.setupParams(false, url, init, options);
+        return this.get(...params);
       },
       del: async (url, init, options) => {
-        const { path, apolloOptions, query } = this.setupParams(url, init, options);
-        // This is just to make existing spyOn work better.
-        return apolloOptions ? this.delete(path, query, apolloOptions) : this.delete(path, query);
+        const params = this.setupParams(false, url, init, options);
+        return this.delete(...params);
       },
       put: async (url, init, options) => {
-        const { path, apolloOptions, query, body } = this.setupParams(url, init, options);
-        if (query) {
-          // Looks like apollo-datasource-rest doesn't support query params with some methods.
-          // So we will pipe them through, knowing where it looks for them. We could
-          // instead append them to the URL, but then that's redoing query serialization
-          (apolloOptions as { params: typeof query }).params = query;
-        }
-        // This is just to make existing spyOn work better.
-        return apolloOptions ? this.put(path, body, apolloOptions) : this.put(path, body);
+        const params = this.setupParams(true, url, init, options);
+        return this.put(...params);
       },
       post: async (url, init, options) => {
-        const { path, apolloOptions, query, body } = this.setupParams(url, init, options);
-        if (query) {
-          // Looks like apollo-datasource-rest doesn't support query params with some methods.
-          // So we will pipe them through, knowing where it looks for them. We could
-          // instead append them to the URL, but then that's redoing query serialization
-          (apolloOptions as { params: typeof query }).params = query;
-        }
-        // This is just to make existing spyOn work better.
-        return apolloOptions ? this.post(path, body, apolloOptions) : this.post(path, body);
+        const params = this.setupParams(true, url, init, options);
+        return this.post(...params);
       },
       patch: async (url, init, options) => {
-        const { path, apolloOptions, query, body } = this.setupParams(url, init, options);
-        if (query) {
-          // Looks like apollo-datasource-rest doesn't support query params with some methods.
-          // So we will pipe them through, knowing where it looks for them. We could
-          // instead append them to the URL, but then that's redoing query serialization
-          (apolloOptions as { params: typeof query }).params = query;
-        }
-        // This is just to make existing spyOn work better.
-        return apolloOptions ? this.patch(path, body, apolloOptions) : this.patch(path, body);
+        const params = this.setupParams(true, url, init, options);
+        return this.patch(...params);
       },
     };
   }
