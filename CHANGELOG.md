@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/openapi-typescript-infra/apollo-datasource-rest/compare/v2.0.0...v2.1.0) (2023-07-27)
+
+
+### Features
+
+* **util:** add a utility type to get json body for various methods ([ee0e81d](https://github.com/openapi-typescript-infra/apollo-datasource-rest/commit/ee0e81d430179946ae345f73833d67a7184bce5a))
+
 # [2.0.0](https://github.com/openapi-typescript-infra/apollo-datasource-rest/compare/v1.0.4...v2.0.0) (2023-07-27)
 
 
