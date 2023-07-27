@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/openapi-typescript-infra/apollo-datasource-rest/compare/v1.0.4...v2.0.0) (2023-07-27)
+
+
+### Features
+
+* **api:** conform to openapi-fetch convention, fix type issues ([2d15bad](https://github.com/openapi-typescript-infra/apollo-datasource-rest/commit/2d15bad59de1a0e7fd7238799c57b2331da42ab9))
+
+
+### BREAKING CHANGES
+
+* **api:** uppercase HTTP method names
+
 ## [1.0.4](https://github.com/openapi-typescript-infra/apollo-datasource-rest/compare/v1.0.3...v1.0.4) (2023-07-23)
 
 
