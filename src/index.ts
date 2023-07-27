@@ -14,7 +14,7 @@ export interface OperationObject {
   responses: unknown;
 }
 export type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace';
-export type OkStatus = 200 | 201 | 202 | 203 | 204 | 206 | 207;
+export type OkStatus = 200 | 201 | 202 | 203 | 204 | 206 | 207 | '2xx';
 
 // util
 /** Get a union of paths which have method */
@@ -43,7 +43,9 @@ export type RequestBodyContent<T> = undefined extends RequestBodyObj<T>
 export type RequestBodyMedia<T> = FilterKeys<RequestBodyContent<T>, MediaType> extends never
   ? FilterKeys<NonNullable<RequestBodyContent<T>>, MediaType> | undefined
   : FilterKeys<RequestBodyContent<T>, MediaType>;
-export type RequestBody<T> = undefined extends RequestBodyMedia<T>
+export type RequestBody<T> = RequestBodyMedia<T> extends never
+  ? { body?: never }
+  : undefined extends RequestBodyMedia<T>
   ? { body?: RequestBodyMedia<T> }
   : { body: RequestBodyMedia<T> };
 export type RequestOptions<T> = Params<T> & RequestBody<T> & object;
@@ -83,31 +85,31 @@ export class TypedRESTDataSource<
 > extends RESTDataSource<Context> {
   protected openapi: {
     /** Call a GET endpoint */
-    get<P extends PathsWith<Paths, 'get'>>(
+    GET<P extends PathsWith<Paths, 'get'>>(
       url: P,
       init: RequestOptions<FilterKeys<Paths[P], 'get'>>,
       options?: ApolloRequestInit,
     ): Promise<DataResponse<'get' extends keyof Paths[P] ? Paths[P]['get'] : unknown>>;
     /** Call a PUT endpoint */
-    put<P extends PathsWith<Paths, 'put'>>(
+    PUT<P extends PathsWith<Paths, 'put'>>(
       url: P,
       init: RequestOptions<FilterKeys<Paths[P], 'put'>>,
       options?: ApolloRequestInit,
     ): Promise<DataResponse<'put' extends keyof Paths[P] ? Paths[P]['put'] : unknown>>;
     /** Call a POST endpoint */
-    post<P extends PathsWith<Paths, 'post'>>(
+    POST<P extends PathsWith<Paths, 'post'>>(
       url: P,
       init: RequestOptions<FilterKeys<Paths[P], 'post'>>,
       options?: ApolloRequestInit,
     ): Promise<DataResponse<'post' extends keyof Paths[P] ? Paths[P]['post'] : unknown>>;
     /** Call a DEL endpoint */
-    del<P extends PathsWith<Paths, 'delete'>>(
+    DELETE<P extends PathsWith<Paths, 'delete'>>(
       url: P,
       init: RequestOptions<FilterKeys<Paths[P], 'delete'>>,
       options?: ApolloRequestInit,
     ): Promise<DataResponse<'delete' extends keyof Paths[P] ? Paths[P]['delete'] : unknown>>;
     /** Call a PATCH endpoint */
-    patch<P extends PathsWith<Paths, 'patch'>>(
+    PATCH<P extends PathsWith<Paths, 'patch'>>(
       url: P,
       init: RequestOptions<FilterKeys<Paths[P], 'patch'>>,
       options?: ApolloRequestInit,
@@ -167,23 +169,23 @@ export class TypedRESTDataSource<
   constructor(httpFetch?: ConstructorParameters<typeof RESTDataSource>[0]) {
     super(httpFetch);
     this.openapi = {
-      get: async (url, init, options) => {
+      GET: async (url, init, options) => {
         const params = this.setupParams(false, url, init, options);
         return this.get(...params);
       },
-      del: async (url, init, options) => {
+      DELETE: async (url, init, options) => {
         const params = this.setupParams(false, url, init, options);
         return this.delete(...params);
       },
-      put: async (url, init, options) => {
+      PUT: async (url, init, options) => {
         const params = this.setupParams(true, url, init, options);
         return this.put(...params);
       },
-      post: async (url, init, options) => {
+      POST: async (url, init, options) => {
         const params = this.setupParams(true, url, init, options);
         return this.post(...params);
       },
-      patch: async (url, init, options) => {
+      PATCH: async (url, init, options) => {
         const params = this.setupParams(true, url, init, options);
         return this.patch(...params);
       },

@@ -14,7 +14,7 @@ class PetStoreDataSource extends TypedRESTDataSource<paths, ApolloContext> {
   protected willSendRequest() {}
 
   callSimpleMethod() {
-    return this.openapi.get(
+    return this.openapi.GET(
       '/pet/{petId}',
       {
         params: {
@@ -32,7 +32,7 @@ class PetStoreDataSource extends TypedRESTDataSource<paths, ApolloContext> {
   }
 
   uploadBadImage() {
-    return this.openapi.post('/pet/{petId}/uploadImage', {
+    return this.openapi.POST('/pet/{petId}/uploadImage', {
       params: {
         path: { petId: 1 },
         query: { additionalMetadata: 'test' },
