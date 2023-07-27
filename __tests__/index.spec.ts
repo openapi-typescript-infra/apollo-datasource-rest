@@ -1,6 +1,6 @@
 import { InMemoryLRUCache } from '@apollo/utils.keyvaluecache';
 
-import { TypedRESTDataSource } from '../src/index';
+import { type JsonPutBody, TypedRESTDataSource } from '../src/index';
 
 import type { paths } from './petstore';
 
@@ -78,4 +78,12 @@ test('should create a client', async () => {
       params: new URLSearchParams({ additionalMetadata: 'test' }),
     }),
   );
+
+  // This is essentially a build time test.
+  const body: JsonPutBody<paths['/pet']> = {
+    id: 1,
+    name: 'Kiki',
+    photoUrls: [],
+  };
+  expect(body).toBeTruthy();
 });
