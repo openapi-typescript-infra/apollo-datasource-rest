@@ -1,3 +1,17 @@
+# [3.0.0](https://github.com/openapi-typescript-infra/apollo-datasource-rest/compare/v2.1.1...v3.0.0) (2023-08-04)
+
+
+### Bug Fixes
+
+* **types:** rework the query and path types ([41a83a6](https://github.com/openapi-typescript-infra/apollo-datasource-rest/commit/41a83a6b33b6def50fea92f24585a1a2f7958983))
+
+
+### BREAKING CHANGES
+
+* **types:** the query and path types now separate the paths
+argument and the actual path, and define individual types for each
+HTTP method
+
 ## [2.1.1](https://github.com/openapi-typescript-infra/apollo-datasource-rest/compare/v2.1.0...v2.1.1) (2023-08-04)
 
 
