@@ -52,11 +52,11 @@ test('should create a client', async () => {
   });
 
   const response = await petStore.callSimpleMethod();
-  expect(response.name).toBe('Pet1');
+  expect(response.id).toBe(1);
   expect(cache.keys()).toHaveLength(1);
 
   const response2 = await petStore.callSimpleMethod();
-  expect(response2.name).toBe('Pet1');
+  expect(response2.name).toBe(response.name);
   expect(cache.keys()).toHaveLength(1);
 
   const reqSpy = jest.spyOn(
