@@ -1,3 +1,11 @@
+## [2.1.1](https://github.com/openapi-typescript-infra/apollo-datasource-rest/compare/v2.1.0...v2.1.1) (2023-08-04)
+
+
+### Bug Fixes
+
+* **test:** pet name is not stable in the hosted site ([3361cde](https://github.com/openapi-typescript-infra/apollo-datasource-rest/commit/3361cde9656f02aaedc6fc3c7527f52b6b7c90ae))
+* **util:** add a utility type for the query args ([ab2fa38](https://github.com/openapi-typescript-infra/apollo-datasource-rest/commit/ab2fa38baf9a31726db497f4d149421a8e0dedf7))
+
 # [2.1.0](https://github.com/openapi-typescript-infra/apollo-datasource-rest/compare/v2.0.0...v2.1.0) (2023-07-27)
 
 
